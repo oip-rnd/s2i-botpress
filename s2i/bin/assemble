@@ -59,6 +59,8 @@ PKGS_DIR=$(pwd)/nodepkgs
 BP_BOT_DIR=$(pwd)/botpress
 
 mkdir $PKGS_DIR $BP_BOT_DIR
+echo listing
+ls
 cd $PKGS_DIR
 
 echo "---> Installing botpress package in '$PKGS_DIR' dir"
@@ -67,7 +69,7 @@ echo "     ---> Using '$CMD'"
 $CMD
 
 export NODE_PATH=($pwd)/node_modules
-export PATH=($pwd)/node_modules/.bin
+export PATH=$PATH:($pwd)/node_modules/.bin
 
 #npm install yarn
 
@@ -82,6 +84,8 @@ echo "---> Installing bot's node packages"
 cd $BP_BOT_NAME
 CMD="npm install"
 echo "     ---> Using '$CMD'"
+pwd
+echo PATH=$PATH
 $CMD
 
 echo "---> Cleaning up npm cache '$PKGS_DIR/.npm'"
