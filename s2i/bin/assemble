@@ -59,7 +59,7 @@ PKGS_DIR=$(pwd)/nodepkgs
 BP_BOT_DIR=$(pwd)/botpress
 
 mkdir $PKGS_DIR $BP_BOT_DIR
-cd $NODEPKGDIR
+cd $PKGS_DIR
 
 echo "---> Installing botpress package in '$PKGS_DIR' dir"
 CMD="npm install $NPM_OPTIONS botpress"
