@@ -58,7 +58,7 @@ git config --list
 PKGS_DIR=$(pwd)/nodepkgs
 BP_BOT_DIR=$(pwd)/botpress
 
-mkdir $PKGS_DIR
+mkdir $PKGS_DIR $BP_BOT_DIR
 cd $NODEPKGDIR
 
 echo "---> Installing botpress package in '$PKGS_DIR' dir"
