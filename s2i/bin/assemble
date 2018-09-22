@@ -68,8 +68,8 @@ CMD="npm install $NPM_OPTIONS botpress"
 echo "     ---> Using '$CMD'"
 $CMD
 
-export NODE_PATH=($pwd)/node_modules
-export PATH=$PATH:($pwd)/node_modules/.bin
+export NODE_PATH=$(pwd)/node_modules
+export PATH=$PATH:$(pwd)/node_modules/.bin
 
 #npm install yarn
 
