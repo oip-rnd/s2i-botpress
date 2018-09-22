@@ -27,7 +27,7 @@ run_node() {
   export BOTPRESS_URL=http://0.0.0.0:8080
 
   echo "---> Using 'yarn run $YARN_ARGS'"
-  exec yarn run $YARN_ARGS
+  exec npm $YARN_ARGS
 }
 
 # Allow debugging the builder image itself, by using:
