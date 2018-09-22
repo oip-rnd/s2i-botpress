@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-source /usr/libexec/s2i/generate-container-user
+if [ -e "/opt/app-root/etc/generate_container_user" ]; then
+  source /opt/app-root/etc/generate_container_user
+fi
 
 # Set the environment for this build configuration to production by default.
 if [ "$NODE_ENV" == "production" ]; then
