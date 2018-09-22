@@ -68,6 +68,8 @@ $CMD
 
 export NODE_PATH=($pwd)/node_modules/.bin
 
+npm install yarn
+
 cd $BP_BOT_DIR
 
 echo "---> Creating botpress bot in '$BP_BOT_DIR/$BP_BOT_NAME'"
