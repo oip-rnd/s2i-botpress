@@ -27,7 +27,7 @@ run_node() {
 
   export BOTPRESS_URL=http://0.0.0.0:8080
 
-  cd botpress
+  cd botpress/*
 
   echo "---> Using 'yarn run $YARN_ARGS'"
   exec npm $YARN_ARGS
