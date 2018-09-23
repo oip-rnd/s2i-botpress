@@ -30,7 +30,8 @@ LABEL summary="$SUMMARY" \
       usage="s2i build <SOURCE-REPOSITORY> centos/$NAME-$BOTPRESS_VERSION-centos7:latest <APP-NAME>"
 
 # Install Yarn & Botpress
-RUN npm install -g yarn botpress@$BOTPRESS_VERSION
+RUN . ${APP_ROOT}/etc/scl_enable && \
+    npm install -g yarn botpress@$BOTPRESS_VERSION
 
 # Copy the S2I scripts from this image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
