@@ -28,7 +28,8 @@ run_node() {
   export BOTPRESS_PORT="8080"
   export BOTPRESS_URL="http://0.0.0.0:$BOTPRESS_PORT"
 
-  cd $(cat .botpath)
+  # Change to bot directory if bot was initialized by assemble script
+  [ -f .botpath ] && cd $(cat .botpath)
 
   echo "---> Using 'yarn run $YARN_ARGS'"
   exec npm $YARN_ARGS

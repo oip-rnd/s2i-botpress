@@ -23,80 +23,111 @@ mv /tmp/src/* ./
 if [ ! -z $HTTP_PROXY ]; then
 	echo "---> Setting npm http proxy to $HTTP_PROXY"
 	npm config set proxy $HTTP_PROXY
-	#yarn config set proxy $HTTP_PROXY
+	yarn config set proxy $HTTP_PROXY
 fi
 
 if [ ! -z $http_proxy ]; then
 	echo "---> Setting npm http proxy to $http_proxy"
 	npm config set proxy $http_proxy
-	#yarn config set proxy $http_proxy
+	yarn config set proxy $http_proxy
 fi
 
 if [ ! -z $HTTPS_PROXY ]; then
 	echo "---> Setting npm https proxy to $HTTPS_PROXY"
 	npm config set https-proxy $HTTPS_PROXY
-	#yarn config set https-proxy $HTTPS_PROXY
+	yarn config set https-proxy $HTTPS_PROXY
 fi
 
 if [ ! -z $https_proxy ]; then
 	echo "---> Setting npm https proxy to $https_proxy"
 	npm config set https-proxy $https_proxy
-	#yarn config set https-proxy $https_proxy
+	yarn config set https-proxy $https_proxy
 fi
 
 # Change the npm registry mirror if provided
 if [ ! -z "$NPM_MIRROR" ]; then
 	echo "---> Setting the npm package mirror to $NPM_MIRROR"
 	npm config set registry $NPM_MIRROR
-	#yarn config set registry $NPM_MIRROR
+	yarn config set registry $NPM_MIRROR
 fi
 
-echo "---> Building your Botpress bot application from source"
-echo -e "Current git config"
+echo -e "--> Current git config"
 git config --list
 
-# Variable definitions
-PKGS_DIR=$(pwd)/nodepkgs
-BP_BOT_DIR=$(pwd)/botpress
+echo "---> Building your Botpress bot application from source"
 
-# Make sure bot name is defined
-if [ -z "$BP_BOT_NAME" ]; then
-  echo "---> Environment variable 'BP_BOT_NAME' not defined, using default bot name"
-  BP_BOT_NAME=botty
-else
-  echo "---> Bot name defined as '$BP_BOT_NAME'"
+# Set the DEV_MODE to false by default.
+if [ -z "$DEV_MODE" ]; then
+  export DEV_MODE=false
 fi
-echo "$BP_BOT_DIR/$BP_BOT_NAME" > .botpath
 
-# Creating working directories
-mkdir $PKGS_DIR $BP_BOT_DIR
+# If NODE_ENV is not set by the user, then NODE_ENV is determined by whether
+# the container is run in development mode.
+if [ -z "$NODE_ENV" ]; then
+  if [ "$DEV_MODE" == true ]; then
+    export NODE_ENV=development
+  else
+    export NODE_ENV=production
+  fi
+fi
 
-echo "---> Installing botpress package in '$PKGS_DIR' dir"
-CMD="npm install $NPM_OPTIONS botpress"
-echo "     ---> Using '$CMD'"
-cd $PKGS_DIR
-$CMD
 
-export NODE_PATH=$(pwd)/node_modules
-export PATH=$PATH:$(pwd)/node_modules/.bin
+# Initialize a new bot if requested
+if [ "x$BP_INIT" == 'xtrue' ]; then
 
-#npm install yarn
+  # Make sure bot name is defined
+  if [ -z "$BP_BOT_NAME" ]; then
+    echo "---> Environment variable 'BP_BOT_NAME' not defined, using default bot name"
+    BP_BOT_NAME=botty
+  else
+    echo "---> Bot name defined as '$BP_BOT_NAME'"
+  fi
+  echo "$BP_BOT_NAME" > .botpath
+  
+  echo "---> Creating botpress bot in '$(pwd)/$BP_BOT_NAME'"
+  CMD="botpress init $BP_BOT_NAME -y"
+  echo "     ---> Using '$CMD'"
+  $CMD
+  
+  echo "---> Installing bot's node packages"
+  cd $BP_BOT_NAME
+  CMD="npm install"
+  echo "     ---> Using '$CMD'"
+  $CMD
+fi
 
-cd $BP_BOT_DIR
+if [ "$NODE_ENV" != "production" ]; then
 
-echo "---> Creating botpress bot in '$BP_BOT_DIR/$BP_BOT_NAME'"
-CMD="botpress init $BP_BOT_NAME -y"
-echo "     ---> Using '$CMD'"
-$CMD
+	echo "---> Building your Node application from source"
+	npm install
 
-echo "---> Installing bot's node packages"
-cd $BP_BOT_NAME
-CMD="npm install"
-echo "     ---> Using '$CMD'"
-$CMD
+else
 
-echo "---> Cleaning up npm cache '$PKGS_DIR/.npm'"
-rm -rf $PKGS_DIR/.npm
+	echo "---> Installing all dependencies"
+	NODE_ENV=development npm install
 
+	#do not fail when there is no build script
+	echo "---> Building in production mode"
+	npm run build --if-present
+
+	echo "---> Pruning the development dependencies"
+	npm prune
+
+	# Clear the npm's cache and tmp directories only if they are not a docker volumes
+	NPM_CACHE=$(npm config get cache)
+	if ! mountpoint $NPM_CACHE; then
+		echo "---> Cleaning the npm cache $NPM_CACHE"
+		#As of npm@5 even the 'npm cache clean --force' does not fully remove the cache directory
+		rm $NPM_CACHE* -rf
+	fi
+	NPM_TMP=$(npm config get tmp)
+	if ! mountpoint $NPM_TMP; then
+		echo "---> Cleaning the $NPM_TMP/npm-*"
+		rm -rf $NPM_TMP/npm-*
+	fi
+
+fi
+
+# Fix source directory permissions
 echo "---> Fix permissions on app-root"
-fix-permissions /opt/app-root
+fix-permissions ./

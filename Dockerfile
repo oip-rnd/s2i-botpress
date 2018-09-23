@@ -1,6 +1,6 @@
 FROM centos/nodejs-8-centos7:latest
 
-ENV BOTPRESS_VERSION=10 \
+ENV BOTPRESS_VERSION=10.40.0 \
     NAME=botpress \
     NODEJS_VERSION=8 \
     YARG_ARGS=start \
@@ -28,6 +28,9 @@ LABEL summary="$SUMMARY" \
       maintainer="OIP Core Team <oip-core-team@lab-nxtit.com>" \
       help="For more information visit https://github.com/oip-rnd/s2i-botpress-container" \
       usage="s2i build <SOURCE-REPOSITORY> centos/$NAME-$BOTPRESS_VERSION-centos7:latest <APP-NAME>"
+
+# Install Yarn & Botpress
+RUN npm install -g yarn botpress@$BOTPRESS_VERSION
 
 # Copy the S2I scripts from this image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
