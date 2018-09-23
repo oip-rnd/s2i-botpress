@@ -25,13 +25,13 @@ run_node() {
   echo -e "Environment: \n\tYARN_ARGS=${YARN_ARGS}\n\t"
   echo -e "Running as user $(id)"
 
-  export BOTPRESS_URL="http://0.0.0.0:8080"
+  export BOTPRESS_PORT="8080"
+  export BOTPRESS_URL="http://0.0.0.0:$BOTPRESS_PORT"
 
   cd $(cat .botpath)
 
   echo "---> Using 'yarn run $YARN_ARGS'"
-  #exec npm $YARN_ARGS
-  exec node index.js --port 8080 --host 0.0.0.0
+  exec npm $YARN_ARGS
 }
 
 # Allow debugging the builder image itself, by using:
